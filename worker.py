@@ -1,9 +1,13 @@
 from datetime import datetime as dt
 from random import randint
-from requests import get, post
+from requests import get
 from app import Db, bot
 from api import Bitrix24
 from config import *
+
+
+def working_day():
+    return get('https://isdayoff.ru/today', params={'covid': 1}).text in ['1', '4']
 
 
 def generate_times():
@@ -14,6 +18,9 @@ def generate_times():
         end = dt.fromtimestamp(start.timestamp() + randint(DAY_MIN_LENGTH, DAY_MAX_LENGTH))
         return start, end
 
+
+if not working_day():
+    exit(0)
 
 if 8 <= dt.now().hour <= 12:
     users = Db.get_all_users()
@@ -38,10 +45,10 @@ elif 3 <= dt.now().hour <= 5:
 elif dt.now().hour >= 17:
     users = Db.get_all_users()
     for user in users:
-        if user[5] is None and not user[6]:
+        if user[5] is None and not user[6] and user[3] is not None:
             bot.send_message(user[0], 'Напишите отчёт о рабочем дне. Прям сюда! Рабочий день пока не будет закрыт.')
             Db.waiting_report(user[0])
-        elif user[4] >= dt.now() and user[5] is not None:
+        elif user[4] <= dt.now() and user[5] is not None:
             bitrix = Bitrix24(user[1], user[2])
             state, meta = bitrix.get_state()
             if state == 'OPENED':
