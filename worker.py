@@ -45,6 +45,8 @@ elif 3 <= dt.now().hour <= 5:
 elif dt.now().hour >= 17:
     users = Db.get_all_users()
     for user in users:
+        if user[3] is None or user[4] is None:
+            continue
         if user[5] is None and not user[6] and user[3] is not None:
             bot.send_message(user[0], 'Напишите отчёт о рабочем дне. Прям сюда! Рабочий день пока не будет закрыт.')
             Db.waiting_report(user[0])
