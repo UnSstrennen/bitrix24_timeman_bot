@@ -7,7 +7,7 @@ from config import *
 
 
 def working_day():
-    return get('https://isdayoff.ru/today', params={'covid': 1}).text in ['1', '4']
+    return not get('https://isdayoff.ru/today', params={'covid': 1}).text in ['1', '4']
 
 
 def generate_times():
