@@ -76,7 +76,7 @@ class Db:
     
     @staticmethod
     def clear_user(id):
-        s = users.update().where(users.c.id==id).values(report=None, waiting_report=False, start=None, stop=None)
+        s = users.update().values(report=None, waiting_report=False, start=None, stop=None).where(users.c.id==id)
         conn.execute(s)
 
 
