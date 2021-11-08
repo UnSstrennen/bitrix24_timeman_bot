@@ -25,7 +25,7 @@ if not working_day():
 if 8 <= dt.now().hour <= 12:
     users = Db.get_all_users()
     for user in users:
-        if user[3] >= dt.now():
+        if user[3] <= dt.now():
             bitrix = Bitrix24(user[1], user[2])
             state, meta = bitrix.get_state()
             if state == 'CLOSED':
