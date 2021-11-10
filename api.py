@@ -49,5 +49,3 @@ class Bitrix24:
         if r.status_code == 200:
             return True
         return False
-
-bitrix = Bitrix24('NikitaShishkin', 'JC*oPYfN')
