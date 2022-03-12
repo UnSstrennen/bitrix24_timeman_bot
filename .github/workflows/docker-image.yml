@@ -33,4 +33,5 @@ jobs:
         script: |
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u USERNAME --password-stdin
           docker pull ghcr.io/unsstrennen/bitrix24_timeman_bot:latest
+          docker container rm -f bitrix24_timeman || true
           docker run -d --name bitrix24_timeman --restart always -e BASE_HOST=$HOST -e TOKEN=$TOKEN ghcr.io/unsstrennen/bitrix24_timeman_bot
