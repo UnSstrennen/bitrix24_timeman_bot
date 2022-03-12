@@ -31,6 +31,7 @@ jobs:
         username: ${{ secrets.SSH_USER }}
         key: ${{ secrets.SSH_KEY }}
         script: |
+          echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u USERNAME --password-stdin
           docker pull ghcr.io/unsstrennen/bitrix24_timeman_bot:latest
           docker rm -f bitrix24_timeman || true
           docker run -d ghcr.io/unsstrennen/bitrix24_timeman_bot:latest -e BASE_HOST=$HOST -e TOKEN=$TOKEN --name bitrix24_timeman
