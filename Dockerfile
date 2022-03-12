@@ -1,6 +1,4 @@
-FROM python:3.9-alpine
-
-ENV PYTHONIOENCODING=utf-8
+FROM python:3.9
 
 COPY . /app
 WORKDIR /app
