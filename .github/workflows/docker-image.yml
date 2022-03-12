@@ -25,10 +25,10 @@ jobs:
     - name: Run Docker CMD
       uses: appleboy/ssh-action@master
       with:
-        host: ${{ secrets.SSH_HOST }}
-        username: ${{ secrets.SSH_USER }}
-        password: ${{ secrets.SSH_PASSWORD }}
+        host: $SSH_HOST
+        username: $SSH_USER
+        password: $SSH_PASSWORD
         script: 
           docker pull ghcr.io/unsstrennen/bitrix24_timeman_bot:latest
           docker rm -f bitrix24_timeman || true
-          docker run -d ${{ github.repository }}:latest -e BASE_HOST=$HOST -e TOKEN=$TOKEN --name bitrix24_timeman
+          docker run -d ghcr.io/unsstrennen/bitrix24_timeman_bot:latest -e BASE_HOST=$HOST -e TOKEN=$TOKEN --name bitrix24_timeman
