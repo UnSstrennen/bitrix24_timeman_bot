@@ -6,7 +6,7 @@ from api import Bitrix24
 from config import *
 
 
-engine = create_engine('sqlite:///data.db?check_same_thread=False')
+engine = create_engine('sqlite:///data/data.db?check_same_thread=False')
 conn = engine.connect()
 metadata = MetaData()
 
