@@ -7,7 +7,7 @@ on:
     branches: [ main ]
 
 jobs:
-  deploy:
+  build_and_push:
     runs-on: ubuntu-latest
     steps:
     - name: Login to GitHub Container Registry
@@ -22,6 +22,9 @@ jobs:
         push: true # Will only build if this is not here
         tags: |
           ghcr.io/unsstrennen/bitrix24_timeman_bot:latest
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
     - name: deploy docker
       uses: appleboy/ssh-action@master
       with:
@@ -33,6 +36,9 @@ jobs:
           docker pull ghcr.io/unsstrennen/bitrix24_timeman_bot:latest
           docker container rm -f bitrix24_timeman || true
           docker run -d --name bitrix24_timeman --restart always -e BASE_HOST=${{ secrets.BASE_HOST }} -e TOKEN=${{ secrets.TOKEN }} ghcr.io/unsstrennen/bitrix24_timeman_bot -v /var/lib/bitrix24_timeman/data.db:/app/data.db
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
     - name: cleanup
       uses: appleboy/ssh-action@master
       with:
