@@ -1,0 +1,38 @@
+name: Docker Image CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Build the Docker image
+      run: docker build . --file Dockerfile --tag $GITHUB_REPOSITORY
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v1
+      with:
+        registry: ghcr.io
+        username: ${{ github.repository_owner }}
+        password: ${{ secrets.GITHUB_REGISTRY_TOKEN }}
+    - name: Build and Push Docker Image
+      uses: docker/build-push-action@v2
+      with:
+        push: true # Will only build if this is not here
+        tags: |
+          ghcr.io/${{ github.repository }}:${{ github.ref }}
+          ghcr.io/${{ github.repository }}:latest
+    - name: Run Docker CMD
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        password: ${{ secrets.SSH_PASSWORD }}
+        script: 
+          docker pull ghcr.io/${{ github.repository }}:latest
+          docker rm -f bitrix24_timeman || true
+          docker run -d ${{ github.repository }}:latest -e BASE_HOST=$HOST -e TOKEN=$TOKEN --name bitrix24_timeman
