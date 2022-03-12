@@ -21,7 +21,7 @@ jobs:
       with:
         push: true # Will only build if this is not here
         tags: |
-          ${{ github.repository }}:latest
+          ${{ github.repository.lowercase }}:latest
     - name: Run Docker CMD
       uses: appleboy/ssh-action@master
       with:
