@@ -21,8 +21,7 @@ jobs:
       with:
         push: true # Will only build if this is not here
         tags: |
-          ghcr.io/${{ github.repository }}:${{ github.ref }}
-          ghcr.io/${{ github.repository }}:latest
+          ${{ github.repository }}:latest
     - name: Run Docker CMD
       uses: appleboy/ssh-action@master
       with:
