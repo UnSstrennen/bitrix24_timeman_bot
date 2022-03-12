@@ -16,8 +16,6 @@ jobs:
         registry: ghcr.io
         username: unsstrennen
         password: ${{ secrets.GITHUB_TOKEN }}
-    - name: prepare project
-      run: mkdir data
     - name: Build and Push Docker Image
       uses: docker/build-push-action@v2
       with:
