@@ -36,7 +36,7 @@ jobs:
           echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u USERNAME --password-stdin
           docker pull ghcr.io/unsstrennen/bitrix24_timeman_bot:latest
           docker container rm -f bitrix24_timeman || true
-          docker run -d --name bitrix24_timeman --restart always -e BASE_HOST=${{ secrets.BASE_HOST }} -e TOKEN=${{ secrets.TOKEN }} ghcr.io/unsstrennen/bitrix24_timeman_bot -v bitrix24_timeman_db:/app/data.db
+          docker run -d --name bitrix24_timeman --restart always -e BASE_HOST=${{ secrets.BASE_HOST }} -e TOKEN=${{ secrets.TOKEN }} ghcr.io/unsstrennen/bitrix24_timeman_bot -v /var/lib/bitrix24_timeman/data.db:/app/data.db
   cleanup:
     runs-on: ubuntu-latest
     needs: [build_and_push, deploy]
