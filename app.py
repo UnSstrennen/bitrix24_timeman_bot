@@ -155,7 +155,8 @@ def process():
             end = dt.fromtimestamp(start.timestamp() + randint(DAY_MIN_LENGTH, DAY_MAX_LENGTH))
             return start, end
 
-    print('processing...')
+    with open('go', mode='w') as f:
+        f.write('123')
 
     if not working_day():
         return
@@ -203,13 +204,16 @@ def process():
 def sheduler():
     schedule.every(1).minutes.do(process)
     while True:
+        with open('check', mode='w') as f:
+            f.write('123')
         print('check')
         schedule.run_pending()
         sleep(1)
 
 
 if __name__ == '__main__':
-    print('starting bot...')
+    with open('start', mode='w') as f:
+        f.write('123')
     metadata.create_all(engine)
     Thread(target=sheduler, args=()).start()
     bot.infinity_polling()
