@@ -203,11 +203,13 @@ def process():
 def sheduler():
     schedule.every(1).minutes.do(process)
     while True:
+        print('check')
         schedule.run_pending()
         sleep(1)
 
 
 if __name__ == '__main__':
+    print('starting bot...')
     metadata.create_all(engine)
     Thread(target=sheduler, args=()).start()
     bot.infinity_polling()
