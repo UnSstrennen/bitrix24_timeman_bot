@@ -201,7 +201,7 @@ def process():
 
 
 def sheduler():
-    schedule.every(1).minutes.do(process)
+    schedule.every(3).minutes.do(process)
     while True:
         schedule.run_pending()
         sleep(1)
