@@ -1,5 +1,8 @@
 from sqlalchemy import create_engine, Table, Column, Integer, String, Text, DateTime, MetaData, delete, Boolean
 from telebot import TeleBot
+from threading import Thread
+import schedule
+from time import sleep
 from datetime import datetime as dt
 from random import randint
 from api import Bitrix24
@@ -136,6 +139,75 @@ def all(msg):
         scan_user(user, msg.chat.id)
 
 
+def process():
+    from datetime import datetime as dt
+    from random import randint
+    from requests import get
+    
+    def working_day():
+        return not get('https://isdayoff.ru/today', params={'covid': 1}).text in ['1', '4']
+
+    def generate_times():
+            now = dt.now()
+            hour = randint(9,10)
+            minute = randint(0, 59) if hour == 9 else randint(0, 30)
+            start = dt(now.year, now.month, now.day, hour, minute, randint(0, 59))
+            end = dt.fromtimestamp(start.timestamp() + randint(DAY_MIN_LENGTH, DAY_MAX_LENGTH))
+            return start, end
+
+    print('processing...')
+
+    if not working_day():
+        return
+
+    if 8 <= dt.now().hour <= 12:
+        users = Db.get_all_users()
+        for user in users:
+            if user[3] <= dt.now():
+                bitrix = Bitrix24(user[1], user[2])
+                state, meta = bitrix.get_state()
+                if state == 'CLOSED':
+                    bitrix.open()
+                    bot.send_message(user[0], f'Ваш рабочий день открыт. Окончание рабочего дня запланировано на {user[4]} при условии своевременного написания отчёта.')
+                elif state in ['EXPIRED', 'PAUSED']:
+                    bot.send_message(user[0], 'Ошибка: кажется, предыдущий рабочий день не закрыт или вы \
+                        поставили рабочий день на паузу. Исправьте и бот снова заработает.')
+
+    elif 3 <= dt.now().hour <= 5:
+        users = Db.get_all_users()
+        for user in users:
+            if user[3] is None and user[4] is None:
+                start, stop = generate_times()
+                Db.set_times(user[0], start, stop)
+
+    elif dt.now().hour >= 17:
+        users = Db.get_all_users()
+        for user in users:
+            if user[3] is None or user[4] is None:
+                continue
+            if user[5] is None and not user[6] and user[3] is not None:
+                bot.send_message(user[0], 'Напишите отчёт о рабочем дне. Прям сюда! Рабочий день пока не будет закрыт.')
+                Db.waiting_report(user[0])
+            elif user[4] <= dt.now() and user[5] is not None:
+                bitrix = Bitrix24(user[1], user[2])
+                state, meta = bitrix.get_state()
+                if state == 'OPENED':
+                    bitrix.close(user[5])
+                    Db.clear_user(user[0])
+                    bot.send_message(user[0], 'Ваш рабочий день был закрыт, отчёт - передан.')
+                elif state in ['EXPIRED', 'PAUSED']:
+                    bot.send_message(user[0], 'Ошибка: кажется, предыдущий рабочий день не закрыт или вы \
+                        поставили рабочий день на паузу. Исправьте и бот снова заработает.')
+
+
+def sheduler():
+    schedule.every(1).minutes.do(process)
+    while True:
+        schedule.run_pending()
+        sleep(1)
+
+
 if __name__ == '__main__':
     metadata.create_all(engine)
+    Thread(target=sheduler, args=()).start()
     bot.infinity_polling()
